@@ -558,7 +558,7 @@
 \keywordsstringsuffix()={:\enspace}
 \keywordsstringfont()={\bfseries}
 % \keywordssep()={\ \textbf{\Large\textperiodcentered}\ }
-\keywordssep()={, }
+\keywordssep()={; }
 % \keywordsboxlen()={\textwidth-\widthof{\usebox{\keywordsstringbox}}}
 
 \newdata{specializationstring}
