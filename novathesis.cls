@@ -208,7 +208,7 @@
   docstatus/.new choice         = {unset, working, provisional, final}, % in not defined by user, unset will be replaced  “working”
   media/.new choice             = {screen, paper},
   spine/layout/.new choice      = {unset, no, full, trim},
-  spine/width/.new length       = {0pt},
+  spine/width/.new value        = {0pt},
   % abstract/deforder/.new choice = {default={\@LANG@MAIN,en}, en={en,pt}},
   % abstract/theorder/.new list   = {unset},
   abstractorder/.new cmd        = {\appto\@nt@saveabstractorder{{#1},}},%
@@ -919,6 +919,7 @@
 % TIKZ
 \RequirePackage{tikz}
 \usetikzlibrary{calc}
+\RequirePackage[most]{tcolorbox}
 
 %%%%% Fine tuning of typesetting
 \ifxeorlua{%
@@ -1558,15 +1559,15 @@
 }
 
 \newcommand{\ntprintspine}{%
-  \pagenumbering{roman}%
-  \setcounter{page}{0}
+  \thispagestyle{empty}%
+  \setcounter{page}{0}%
   \iffileadded[spine]{cover}{%
     \optionlistdo{/@nt/file/cover/spine}{%
-      \bgroup\thispagestyle{empty}%
+      % \bgroup\thispagestyle{empty}%
       \@ntloadfile@i[\ClassError{novathesis}{Invalid cover file: “##1”}{}]{##1}%
-      \egroup\clearforchapter%
+      % \egroup%
     }%
-  }{\@ntprintspine\clearforchapter}%
+  }{\@ntprintspine}%
 }
 
 \newcommand{\ntprintbackcover}{%
@@ -2264,12 +2265,12 @@
 }
 
 \newcommand*{\setpdftexpagesize}{%
-  \@ifundefined{pdfpageheight}{}{\pdfpageheight=\the\stockheight}
-  \@ifundefined{pdfpagewidth}{}{\pdfpagewidth=\the\stockwidth}
-  \@ifundefined{pageheight}{}{\pageheight=\the\stockheight}
-  \@ifundefined{pagewidth}{}{\pagewidth=\the\stockwidth}
-  \@ifundefined{pdfvorigin}{}{\ifdim\pdfvorigin=0pt\pdfvorigin=1in\fi}
-  \@ifundefined{pdfhorigin}{}{\ifdim\pdfhorigin=0pt\pdfhorigin=1in\fi}
+  \@ifundefined{pdfpageheight}{}{\pdfpageheight=\the\stockheight}%
+  \@ifundefined{pdfpagewidth}{}{\pdfpagewidth=\the\stockwidth}%
+  \@ifundefined{pageheight}{}{\pageheight=\the\stockheight}%
+  \@ifundefined{pagewidth}{}{\pagewidth=\the\stockwidth}%
+  \@ifundefined{pdfvorigin}{}{\ifdim\pdfvorigin=0pt\pdfvorigin=1in\fi}%
+  \@ifundefined{pdfhorigin}{}{\ifdim\pdfhorigin=0pt\pdfhorigin=1in\fi}%
   % \ifundef{\pdfpagewidth}{%
   %   \ifundef{\pagewidth}{}{\pagewidth=\paperwidth}%
   % }{\pdfpagewidth=\paperwidth}%
@@ -2279,12 +2280,12 @@
 }
 
 \DeclareRobustCommand\nt@changelayout{%
-  \setlength{\@colht}{\textheight}
+  \setlength{\@colht}{\textheight}%
   \setlength{\@colroom}{\textheight}%
-  \setlength{\vsize}{\textheight}
+  \setlength{\vsize}{\textheight}%
   \setlength{\columnwidth}{\textwidth}%
   \if@twocolumn%
-    \advance\columnwidth-\columnsep
+    \advance\columnwidth-\columnsep%
     \divide\columnwidth\tw@%
     \@firstcolumntrue%
   \fi%
@@ -2308,10 +2309,10 @@
   \fi
 }%
 
-\newcommand\nt@restoregeometry{%
-  \csuse{nt@restoregeometryB@\the\c@pdfnewlytlevel}%
-  \addtocounter{pdfnewlytlevel}{-1}%
-}
+
+%-------------------------------------------------------------
+% save and restore geometry in a LIFO fashion
+\newcounter{pdfnewlytlevel}
 
 \newcommand\nt@savegeometry{%
   \addtocounter{pdfnewlytlevel}{1}%
@@ -2339,63 +2340,93 @@
   \nt@saveboolean{\the\c@pdfnewlytlevel}{@reversemargin}%
 }
 
-\newcounter{pdfnewlytlevel}
-\RequirePackage{atbegshi}
+\newcommand\nt@restoregeometry{%
+  \csuse{nt@restoregeometryB@\the\c@pdfnewlytlevel}%
+  \addtocounter{pdfnewlytlevel}{-1}%
+}
+%-------------------------------------------------------------
+
+\RequirePackage[reset]{geometry}
 \newenvironment{newpdflayout}[3][]{%
-  % #1 = page height
-  % #2 = page width
-  % \typeout{textheight=\the\textheight}
-  % \typeout{textwidth=\the\textwidth}
-  % \AAAA
-  \nt@savegeometry%
+  % #2 = page height
+  % #3 = page width
   \let\oldstockheight=\stockheight
   \let\oldstockwidth=\stockwidth
+  \newgeometry{layoutsize={#3,#2},#1}
+  \stockheight=\paperheight
+  \stockwidth=\paperwidth
   \clearpage
   \begingroup
   \setstocksize{#2}{#3}
   \settrimmedsize{#2}{#3}{*}
-  \paperwidth=\stockwidth
-  \paperheight=\stockheight
-  \setlrmarginsandblock%
-    {\themargin(\option{/novathesis/media},left)}%
-    {\themargin(\option{/novathesis/media},right)}%
-    {*}%
-  \setulmarginsandblock%
-    {\themargin(\option{/novathesis/media},top)}%
-    {\themargin(\option{/novathesis/media},bottom)}%
-    {*}%
-  #1%
-  \checkandfixthelayout[fixed]
-  \setpdftexpagesize
-  % From geometry
-  % \typeout{textheight=\the\textheight}
-  % \typeout{textwidth=\the\textwidth}
-  % \BBBB
+  \global\paperwidth=\stockwidth
+  \global\paperheight=\stockheight
+  \setpdftexpagesize%
   \nt@changelayout%
 }{%
   \clearpage%
   \endgroup%
-  \nt@restoregeometry
-  % \setstocksize{\oldstockheight}{\oldstockwidth}
-  % \settrimmedsize{\oldstockheight}{\oldstockwidth}{*}
-  % \paperwidth=\stockwidth
-  % \paperheight=\stockheight
-  % \setlrmarginsandblock%
-  %   {\themargin(\option{/novathesis/media},left)}%
-  %   {\themargin(\option{/novathesis/media},right)}%
-  %   {*}%
-  % \setulmarginsandblock%
-  %   {\themargin(\option{/novathesis/media},top)}%
-  %   {\themargin(\option{/novathesis/media},bottom)}%
-  %   {*}%
-  \checkandfixthelayout[fixed]
-  \setpdftexpagesize
-  \nt@changelayout
-  \clearpage%
-  \addtocounter{page}{-1}%
-  ~\AtBeginShipoutDiscard
-  \clearpage
+  \restoregeometry%
+  \setpdftexpagesize%
+  \nt@changelayout%
 }
+
+% \RequirePackage{atbegshi}
+% \newenvironment{newpdflayout}[3][]{%
+%   % #1 = page height
+%   % #2 = page width
+%   % \typeout{textheight=\the\textheight}
+%   % \typeout{textwidth=\the\textwidth}
+%   % \AAAA
+%   \nt@savegeometry%
+%   \let\oldstockheight=\stockheight
+%   \let\oldstockwidth=\stockwidth
+%   \clearpage
+%   \begingroup
+%   \setstocksize{#2}{#3}
+%   \settrimmedsize{#2}{#3}{*}
+%   \paperwidth=\stockwidth
+%   \paperheight=\stockheight
+%   \setlrmarginsandblock%
+%     {\themargin(\option{/novathesis/media},left)}%
+%     {\themargin(\option{/novathesis/media},right)}%
+%     {*}%
+%   \setulmarginsandblock%
+%     {\themargin(\option{/novathesis/media},top)}%
+%     {\themargin(\option{/novathesis/media},bottom)}%
+%     {*}%
+%   #1%
+%   \checkandfixthelayout[fixed]%
+%   \setpdftexpagesize%
+%   % From geometry
+%   % \typeout{textheight=\the\textheight}
+%   % \typeout{textwidth=\the\textwidth}
+%   % \BBBB
+%   \nt@changelayout%
+% }{%
+%   \clearpage%
+%   \endgroup%
+%   \nt@restoregeometry%
+%   % \setstocksize{\oldstockheight}{\oldstockwidth}
+%   % \settrimmedsize{\oldstockheight}{\oldstockwidth}{*}
+%   % \paperwidth=\stockwidth
+%   % \paperheight=\stockheight
+%   % \setlrmarginsandblock%
+%   %   {\themargin(\option{/novathesis/media},left)}%
+%   %   {\themargin(\option{/novathesis/media},right)}%
+%   %   {*}%
+%   % \setulmarginsandblock%
+%   %   {\themargin(\option{/novathesis/media},top)}%
+%   %   {\themargin(\option{/novathesis/media},bottom)}%
+%   %   {*}%
+%   \checkandfixthelayout[fixed]%
+%   \setpdftexpagesize%
+%   \nt@changelayout%
+%   % \clearpage%
+%   % \addtocounter{page}{-1}%
+%   % ~\AtBeginShipoutDiscard%
+%   % \clearpage%
+% }
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

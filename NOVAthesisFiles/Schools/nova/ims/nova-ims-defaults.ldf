@@ -164,7 +164,7 @@
 \spine(box,date,margin,left)={0.5mm}
 \spine(box,date,margin,right)={0.5mm}
 
-% \spine(box,bg,color)={yellow}
+% \spine(usedlen)={yellow}
 
 \spine(box,title,left)={\dimexpr\thespine(row)*3+\thespine(box,inspace)\relax}
 \spine(box,author,left)={\dimexpr\thespine(row)*11+\thespine(box,inspace)\relax}
