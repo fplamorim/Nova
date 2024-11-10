@@ -51,8 +51,8 @@
 
 % Defaults for spine boxes
 \spine(box,margin):=?{0.5mm}
-\spine(box,color,bg):=?{none}
-\spine(box,color,text):=?{black}
+\spine(box,bg,color):=?{none}
+\spine(box,text,color):=?{black}
 
 \spine(box,logo,len):=?{4.1cm}
 \spine(box,logo,angle)=?{0}
@@ -368,7 +368,7 @@
       }%
     }%
     \@for\myi:=\expanded{\thespine(order)}\do{%
-      \datamatch{\@boxcolor}{spine}({box,\myi,color,bg},{box,color,bg})%
+      \datamatch{\@boxcolor}{spine}({box,\myi,bg,color},{box,bg,color})%
       \node[rectangle,
             inner sep = 0pt,
             anchor = north west,
@@ -472,7 +472,7 @@
     % TEXT
     \rotatebox[origin=c]{\@angle}{%
     \scalebox{\@fbratio}{%
-      \datamatchtf{\arg}{spine}({box,color,text},{text,color}){\color{\arg}}{}%
+      \datamatchtf{\arg}{spine}({box,#1,text,gz},{box,text,color},{text,color}){\color{\arg}}{}%
       \ifdatadefined{spine}(#1,\@UNIV/\@SCHL){%
         \tabular{@{}c@{}}\thespine(#1,\@UNIV/\@SCHL)\endtabular%
       }{%

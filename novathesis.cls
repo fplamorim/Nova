@@ -2350,25 +2350,19 @@
 \newenvironment{newpdflayout}[3][]{%
   % #2 = page height
   % #3 = page width
-  \let\oldstockheight=\stockheight
-  \let\oldstockwidth=\stockwidth
-  \newgeometry{layoutsize={#3,#2},#1}
+  \clearpage
+  \newgeometry{margin=0pt,layoutsize={#3,#2},#1}
+  \paperheight=#2
+  \paperwidth=#3
   \stockheight=\paperheight
   \stockwidth=\paperwidth
-  \clearpage
-  \begingroup
-  \setstocksize{#2}{#3}
-  \settrimmedsize{#2}{#3}{*}
-  \global\paperwidth=\stockwidth
-  \global\paperheight=\stockheight
   \setpdftexpagesize%
-  \nt@changelayout%
 }{%
   \clearpage%
-  \endgroup%
   \restoregeometry%
+  \stockheight=\paperheight
+  \stockwidth=\paperwidth
   \setpdftexpagesize%
-  \nt@changelayout%
 }
 
 % \RequirePackage{atbegshi}
