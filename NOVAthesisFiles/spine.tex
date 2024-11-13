@@ -296,32 +296,12 @@
   % \DEBUG{NOVATHESIS RATIO=\@fbratio}
   \currentpdfbookmark{\thebkmstring(spine)}{thespine}%
   \ifoptionequal{/novathesis/spine/layout}{trim}{%
-    \stockwidth=\stockheight%
-    \stockheight=\@spinewidth%
+    \newstocksize{layoutsize={\the\stockheight,\the\@spinewidth},margin=0pt}%
   }{\ifoptionequal{/novathesis/spine/layout}{full}{%
-    \let\oldstockwidth=\stockwidth
-    \stockwidth=\stockheight%
-    \stockheight=21cm%
+    \newstocksize{layoutsize={\the\stockheight,\the\stockwidth},margin=0pt}%
   }{%
     \ClassError{novathesis}{Unknown page dimensions for “spine/layout=\option{/novathesis/spine/layout}”}
   }}%
-  \paperwidth=\stockwidth%
-  \paperheight=\stockheight%
-  \setstocksize{\stockheight}{\stockwidth}%
-  \settrimmedsize{\stockheight}{\stockwidth}{*}%
-  % \paperheight=\@spinewidth%
-  \setlrmarginsandblock{0pt}{0pt}{*}%
-  \setulmarginsandblock{0pt}{*}{1}%
-  \setheaderspaces{0pt}{*}{*}%
-  \footskip = 0pt
-  \checkandfixthelayout[fixed]%
-  \ifluatex%
-  \pagewidth=\paperwidth%
-  \pageheight=\paperheight% \pageheight=3in
-  \else%
-  \pdfpagewidth=\paperwidth%
-  \pdfpageheight=\paperheight% \pageheight=3in
-  \fi%
   \thispagestyle{empty}%
   \NTRunHook{spine/pre}%
   % \PAUSETHIS

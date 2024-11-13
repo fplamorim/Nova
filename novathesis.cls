@@ -2248,179 +2248,20 @@
 
 \AtEndPreamble{\ntsetlayout}%
 
+\RequirePackage[reset]{geometry}
+
 \newcommand*{\ntsetlayout}{%
-    % \synctex=1% Use synctex
-    \brokenpenalty=10000%
-    \settypeoutlayoutunit{mm}%
-    \setulmarginsandblock%
-    {\themargin(\option{/novathesis/media},top)}%
-    {\themargin(\option{/novathesis/media},bottom)}%
-    {*}%
-    \setlrmarginsandblock%
-    {\themargin(\option{/novathesis/media},left)}%
-    {\themargin(\option{/novathesis/media},right)}%
-    {*}%
-    \checkandfixthelayout%
+    \newgeometry{lmargin={\themargin(\option{/novathesis/media},left)},
+                 rmargin={\themargin(\option{/novathesis/media},right)},
+                 tmargin={\themargin(\option{/novathesis/media},top)},
+                 bmargin={\themargin(\option{/novathesis/media},bottom)}
+    }%
     \ifoptionequal{/novathesis/media}{paper}{\openright}{}%
 }
 
-\newcommand*{\setpdftexpagesize}{%
-  \@ifundefined{pdfpageheight}{}{\pdfpageheight=\the\stockheight}%
-  \@ifundefined{pdfpagewidth}{}{\pdfpagewidth=\the\stockwidth}%
-  \@ifundefined{pageheight}{}{\pageheight=\the\stockheight}%
-  \@ifundefined{pagewidth}{}{\pagewidth=\the\stockwidth}%
-  \@ifundefined{pdfvorigin}{}{\ifdim\pdfvorigin=0pt\pdfvorigin=1in\fi}%
-  \@ifundefined{pdfhorigin}{}{\ifdim\pdfhorigin=0pt\pdfhorigin=1in\fi}%
-  % \ifundef{\pdfpagewidth}{%
-  %   \ifundef{\pagewidth}{}{\pagewidth=\paperwidth}%
-  % }{\pdfpagewidth=\paperwidth}%
-  % \ifundef{\pdfpageheight}{%
-  %   \ifundef{\pageheight}{}{\pageheight=\paperheight}%
-  % }{\pdfpageheight=\paperheight}%
-}
-
-\DeclareRobustCommand\nt@changelayout{%
-  \setlength{\@colht}{\textheight}%
-  \setlength{\@colroom}{\textheight}%
-  \setlength{\vsize}{\textheight}%
-  \setlength{\columnwidth}{\textwidth}%
-  \if@twocolumn%
-    \advance\columnwidth-\columnsep%
-    \divide\columnwidth\tw@%
-    \@firstcolumntrue%
-  \fi%
-  \setlength{\hsize}{\columnwidth}%
-  \setlength{\linewidth}{\hsize}%
-}%
-
-\newcommand\nt@savelength[2]{%
-  \csappto{nt@restoregeometry@#1}{%
-    \expandafter\csname
-    #2\endcsname\expandafter=\expandafter\the\csname #2\endcsname\relax
-  }%
-}
-\newcommand\nt@saveboolean[2]{%
-  \csname if#2\endcsname
-  \csappto{nt@restoregeometry@#1}{%
-          \expandafter\noexpand\csname #1true\endcsname}%
-  \else
-  \csappto{nt@restoregeometry@#1\endcsname}{%
-          \expandafter\noexpand\csname #1false\endcsname}%
-  \fi
-}%
-
-
-%-------------------------------------------------------------
-% save and restore geometry in a LIFO fashion
-\newcounter{pdfnewlytlevel}
-
-\newcommand\nt@savegeometry{%
-  \addtocounter{pdfnewlytlevel}{1}%
-  \csgdef{nt@restoregeometryA@\the\c@pdfnewlytlevel}{}%
-  \nt@savelength{\the\c@pdfnewlytlevel}{paperwidth}%
-  \nt@savelength{\the\c@pdfnewlytlevel}{paperheight}%
-  \nt@savelength{\the\c@pdfnewlytlevel}{textwidth}%
-  \nt@savelength{\the\c@pdfnewlytlevel}{textheight}%
-  \nt@savelength{\the\c@pdfnewlytlevel}{evensidemargin}%
-  \nt@savelength{\the\c@pdfnewlytlevel}{oddsidemargin}%
-  \nt@savelength{\the\c@pdfnewlytlevel}{topmargin}%
-  \nt@savelength{\the\c@pdfnewlytlevel}{headheight}%
-  \nt@savelength{\the\c@pdfnewlytlevel}{headsep}%
-  \nt@savelength{\the\c@pdfnewlytlevel}{topskip}%
-  \nt@savelength{\the\c@pdfnewlytlevel}{footskip}%
-  \nt@savelength{\the\c@pdfnewlytlevel}{baselineskip}%
-  \nt@savelength{\the\c@pdfnewlytlevel}{marginparwidth}%
-  \nt@savelength{\the\c@pdfnewlytlevel}{marginparsep}%
-  \nt@savelength{\the\c@pdfnewlytlevel}{columnsep}%
-  \nt@savelength{\the\c@pdfnewlytlevel}{hoffset}%
-  \nt@savelength{\the\c@pdfnewlytlevel}{voffset}
-  \nt@saveboolean{\the\c@pdfnewlytlevel}{@twocolumn}%
-  \nt@saveboolean{\the\c@pdfnewlytlevel}{@twoside}%
-  \nt@saveboolean{\the\c@pdfnewlytlevel}{@mparswitch}%
-  \nt@saveboolean{\the\c@pdfnewlytlevel}{@reversemargin}%
-}
-
-\newcommand\nt@restoregeometry{%
-  \csuse{nt@restoregeometryB@\the\c@pdfnewlytlevel}%
-  \addtocounter{pdfnewlytlevel}{-1}%
-}
 %-------------------------------------------------------------
 
-\RequirePackage[reset]{geometry}
-\newenvironment{newpdflayout}[3][]{%
-  % #2 = page height
-  % #3 = page width
-  \clearpage
-  \newgeometry{margin=0pt,layoutsize={#3,#2},#1}
-  \paperheight=#2
-  \paperwidth=#3
-  \stockheight=\paperheight
-  \stockwidth=\paperwidth
-  \setpdftexpagesize%
-}{%
-  \clearpage%
-  \restoregeometry%
-  \stockheight=\paperheight
-  \stockwidth=\paperwidth
-  \setpdftexpagesize%
-}
-
-% \RequirePackage{atbegshi}
-% \newenvironment{newpdflayout}[3][]{%
-%   % #1 = page height
-%   % #2 = page width
-%   % \typeout{textheight=\the\textheight}
-%   % \typeout{textwidth=\the\textwidth}
-%   % \AAAA
-%   \nt@savegeometry%
-%   \let\oldstockheight=\stockheight
-%   \let\oldstockwidth=\stockwidth
-%   \clearpage
-%   \begingroup
-%   \setstocksize{#2}{#3}
-%   \settrimmedsize{#2}{#3}{*}
-%   \paperwidth=\stockwidth
-%   \paperheight=\stockheight
-%   \setlrmarginsandblock%
-%     {\themargin(\option{/novathesis/media},left)}%
-%     {\themargin(\option{/novathesis/media},right)}%
-%     {*}%
-%   \setulmarginsandblock%
-%     {\themargin(\option{/novathesis/media},top)}%
-%     {\themargin(\option{/novathesis/media},bottom)}%
-%     {*}%
-%   #1%
-%   \checkandfixthelayout[fixed]%
-%   \setpdftexpagesize%
-%   % From geometry
-%   % \typeout{textheight=\the\textheight}
-%   % \typeout{textwidth=\the\textwidth}
-%   % \BBBB
-%   \nt@changelayout%
-% }{%
-%   \clearpage%
-%   \endgroup%
-%   \nt@restoregeometry%
-%   % \setstocksize{\oldstockheight}{\oldstockwidth}
-%   % \settrimmedsize{\oldstockheight}{\oldstockwidth}{*}
-%   % \paperwidth=\stockwidth
-%   % \paperheight=\stockheight
-%   % \setlrmarginsandblock%
-%   %   {\themargin(\option{/novathesis/media},left)}%
-%   %   {\themargin(\option{/novathesis/media},right)}%
-%   %   {*}%
-%   % \setulmarginsandblock%
-%   %   {\themargin(\option{/novathesis/media},top)}%
-%   %   {\themargin(\option{/novathesis/media},bottom)}%
-%   %   {*}%
-%   \checkandfixthelayout[fixed]%
-%   \setpdftexpagesize%
-%   \nt@changelayout%
-%   % \clearpage%
-%   % \addtocounter{page}{-1}%
-%   % ~\AtBeginShipoutDiscard%
-%   % \clearpage%
-% }
+\RequirePackage{NOVAthesisFiles/stocksize}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

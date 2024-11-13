@@ -14,15 +14,32 @@
 
 This is a test with citing something~\cite{ecoop12-dias} in the appendix.
 
-\begin{newpdflayout}{210mm}{297mm}%{420mm}
+\newstocksize{layoutsize={29.7cm,21cm},keepmargins}
 
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 
 \lipsum[1-9]
 
 BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
-\end{newpdflayout}
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+\newstocksize{layoutsize={15cm,15cm},keepmargins}
+
+CCCCCCCCCCCCCCCCCCC
+
+\lipsum[1-2]
+
+DDDDDDDDDDDDDDDDDDD
+
+\restorestocksize
+
+EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
+
+\lipsum[1-9]
+
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+
+\restorestocksize
+
+GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
 
 \lipsum[1-10]
