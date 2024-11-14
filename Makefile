@@ -186,7 +186,7 @@ mtp:
 
 
 #————————————————————————————————————————————————————————————————————————————
-.PHONY: time
+.PHONY: time times
 time times:
 	@ eval "$$printtimes"
 
@@ -194,6 +194,7 @@ time times:
 # FUNCTIONS
 #############################################################################
 #————————————————————————————————————————————————————————————————————————————
+
 define _printtimes
 printf "TIMES FROM THE LAST EXECUTION\n"
 TIMES="$(grep -e 'l3benchmark. + TOC'  *.log | cut -d ' ' -f 4 | xargs)"
@@ -228,6 +229,3 @@ define mtp
 	git checkout develop
 endef
 
-
-run:
-	@ eval "$$script"
