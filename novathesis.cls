@@ -207,7 +207,7 @@
   doctype/.new choice           = {phd, phdprop, phdplan, msc, mscplan, bsc, plain},
   docstatus/.new choice         = {unset, working, provisional, final}, % in not defined by user, unset will be replaced  “working”
   media/.new choice             = {screen, paper},
-  spine/layout/.new choice      = {unset, no, full, trim},
+  spine/layout/.new choice      = {unset, no, trim, notrim},
   spine/width/.new value        = {0pt},
   % abstract/deforder/.new choice = {default={\@LANG@MAIN,en}, en={en,pt}},
   % abstract/theorder/.new list   = {unset},
