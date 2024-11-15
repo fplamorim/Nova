@@ -297,7 +297,7 @@
   \currentpdfbookmark{\thebkmstring(spine)}{thespine}%
   \ifoptionequal{/novathesis/spine/layout}{trim}{%
     \newstocksize{layoutsize={\the\stockheight,\the\@spinewidth},margin=0pt}%
-  }{\ifoptionequal{/novathesis/spine/layout}{full}{%
+  }{\ifoptionequal{/novathesis/spine/layout}{notrim}{%
     \newstocksize{layoutsize={\the\stockheight,\the\stockwidth},margin=0pt}%
   }{%
     \ClassError{novathesis}{Unknown page dimensions for “spine/layout=\option{/novathesis/spine/layout}”}
@@ -318,7 +318,7 @@
       \ClassError{novathesis}{Undefined spine “bg,color”}{}%
     }%
     % print frame IF DEFINED
-    \ifoptionequal{/novathesis/spine/layout}{full}{%
+    \ifoptionequal{/novathesis/spine/layout}{notrim}{%
       \datamatchtf{\arg}{spine}(%
                         {\@DOCTYPE,frame,color},%
                         {\@DOCCLASS,frame,color},%

@@ -637,7 +637,7 @@
   \ifoptionequal{/novathesis/spine/layout}{trim}{%
     \stockwidth=\stockheight%
     \stockheight=\@SPWIDTH%
-  }{\ifoptionequal{/novathesis/spine/layout}{full}{%
+  }{\ifoptionequal{/novathesis/spine/layout}{notrim}{%
     \let\oldstockwidth=\stockwidth
     \stockwidth=\stockheight%
     \stockheight=21cm%
@@ -677,7 +677,7 @@
       \ClassError{novathesis}{Undefined spine “bg,color”}{}%
     }%
     % print frame IF DEFINED
-    \ifoptionequal{/novathesis/spine/layout}{full}{%
+    \ifoptionequal{/novathesis/spine/layout}{notrim}{%
       \datamatchtf{\arg}{spine}(%
                         {\@DOCTYPE,frame,color},%
                         {\@DOCCLASS,frame,color},%

@@ -94,7 +94,7 @@
 \spine(box,logo,msc,raise)={0.075}
 
 % \spine(text,angle)={90}
-\spine(box,color,text)={white}
+\spine(box,text,color)={white}
 % \spine(box,color)={blue}
 % \spine(box,spacing)={0.5cm}
 % \spine(box,margin)={0.5mm}
@@ -136,6 +136,9 @@
   \sffamily%
 }
 \NTAddToHook{cover/2-1/text/pre}{%
+  \sffamily%
+}
+\NTAddToHook{spine/pre}{%
   \sffamily%
 }
 

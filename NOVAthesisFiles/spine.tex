@@ -75,8 +75,8 @@
 %-----------------------------------------------------------------
 % Defaults for spine boxes
 \spine(box,margin):=?{0.5mm}
-\spine(box,color,bg):=?{white}
-\spine(box,color,text):={blue}
+\spine(box,bg,color):=?{none}
+\spine(box,text,color):=?{black}
 
 % Defaults for spine logo boxes
 \spine(box,logo,len):=?{4.1cm}
@@ -213,6 +213,7 @@
 }
 
 \newcommand{\@ntprintspine@i}{%
+  \NTRunHook{spine/pre}%
   \newlength\@SPWIDTH%
   \setspinewidth%
   \newlength\@SPHEIGHT%
@@ -228,7 +229,7 @@
             \def\@TRANSFORMSHAPE{}%
             \ifoptionequal{/novathesis/spine/layout}{trim}{%
               \newstocksize{layoutsize={\the\paperheight,\@SPWIDTH},margin=0pt}
-            }{\ifoptionequal{/novathesis/spine/layout}{full}{%
+            }{\ifoptionequal{/novathesis/spine/layout}{notrim}{%
               \newstocksize{layoutsize={\the\paperheight,\the\paperwidth},margin=0pt}
             }{%
               \ClassError{novathesis}{Unknown page dimensions for “spine/layout=\option{/novathesis/spine/layout}”}
@@ -240,7 +241,7 @@
             \def\@TRANSFORMSHAPE{transform shape}%
             \ifoptionequal{/novathesis/spine/layout}{trim}{%
               \newstocksize{layoutsize={\@SPWIDTH,\the\paperheight},margin=0pt}
-            }{\ifoptionequal{/novathesis/spine/layout}{full}{%
+            }{\ifoptionequal{/novathesis/spine/layout}{notrim}{%
               \newstocksize{layoutsize={\the\paperwidth,\the\paperheight},margin=0pt}
             }{%
               \ClassError{novathesis}{Unknown page dimensions for “spine/layout=\option{/novathesis/spine/layout}”}
@@ -253,7 +254,7 @@
             \def\@TRANSFORMSHAPE{}%
             \ifoptionequal{/novathesis/spine/layout}{trim}{%
               \newstocksize{layoutsize={\the\paperheight,\@SPWIDTH},margin=0pt}
-            }{\ifoptionequal{/novathesis/spine/layout}{full}{%
+            }{\ifoptionequal{/novathesis/spine/layout}{notrim}{%
               \newstocksize{layoutsize={\the\paperheight,\the\paperwidth},margin=0pt}
             }{%
               \ClassError{novathesis}{Unknown page dimensions for “spine/layout=\option{/novathesis/spine/layout}”}
@@ -266,7 +267,7 @@
             \def\@TRANSFORMSHAPE{transform shape}%
             \ifoptionequal{/novathesis/spine/layout}{trim}{%
               \newstocksize{layoutsize={\@SPWIDTH,\the\paperheight},margin=0pt}
-            }{\ifoptionequal{/novathesis/spine/layout}{full}{%
+            }{\ifoptionequal{/novathesis/spine/layout}{notrim}{%
               \newstocksize{layoutsize={\the\paperwidth,\the\paperheight},margin=0pt}
             }{%
               \ClassError{novathesis}{Unknown page dimensions for “spine/layout=\option{/novathesis/spine/layout}”}
@@ -311,13 +312,38 @@
     \def\@boxrule{0pt}%
     \def\@boxdebug{frame empty}%
   }%
+  %
+  % print bg image IF DEFINED
+  \datamatchtf{\arg}{thesiscover}({\@DOCTYPE,spine,image},
+                                  {\@DOCCLASS,spine,image},
+                                  {spine,image}){%
+    \ifnotnone{\arg}{%
+      \node[inner sep=0] at (current page.center)
+        {\includegraphics[width=\@SPWIDTH,height=\@SPHEIGHT,
+                          angle=\expanded{-\thespine(angle)}]{\arg}};
+    }}{%
+      \datamatchtf{\arg}{spine}({\@DOCTYPE,image},%
+                                {\@DOCCLASS,image},%
+                                {image},%
+    ){%
+      \ifnotnone{\arg}{%
+          \node[inner sep=0] at (current page.center)
+              {\includegraphics[width=\@SPWIDTH,height=\@SPHEIGHT,
+                              angle=\@SPANGLE]{\arg}};
+    }}{%
+      \ClassError{novathesis}{Undefined spine “image”}{}%
+    }%
+  }%
+  %
   % iterate the cover elements and draw them
   \@for\myi:=\expanded{\thespine(order)}\do{%
     \def\@boxcolback{tcbcolback}%
-    \datamatchtf{\@boxcolbacki}{spine}({box,\myi,color,bg},{box,color,bg})
-                  {\ifnotnone{\@boxcolbacki}{\def\@boxcolback{\@boxcolbacki}}}{}%
+    \def\@BOXBGOPACITY{0}% Defaults to transparent box background
+    \datamatchtf{\@boxcolbacki}{spine}({box,\myi,bg,color},{box,bg,color})
+                  {\ifnotnone{\@boxcolbacki}{\def\@boxcolback{\@boxcolbacki}
+                                            \def\@BOXBGOPACITY{1}}}{}%
     \def\@boxcoltext{.}%
-    \datamatchtf{\@boxcoltexti}{spine}({box,\myi,color,text},{box,color,text})
+    \datamatchtf{\@boxcoltexti}{spine}({box,\myi,text,color},{box,text,color})
                   {\ifnotnone{\@boxcoltexti}{\def\@boxcoltext{\@boxcoltexti}}}{}%
     \datamatchtf{\@boxml}{spine}({box,\myi,margin,left},{box,margin,left},{box,margin})
                   {}{\def\@boxml{0pt}}%
@@ -338,9 +364,10 @@
                         left=\@boxml, right=\@boxmr, top=\@boxmt, bottom=\@boxmb,
                         colback=\@boxcolback, coltext=\@boxcoltext,
                         boxrule=\@boxrule, colframe=\@boxcolframe,
+                        opacityback=\@BOXBGOPACITY, enhanced jigsaw,
                         \@boxdebug,
                 ]%
-                  [\myi]
+                  \thespine(\myi)%
                 \end{tcolorbox}%
       };
     \@SPCURPOSX=\dimexpr\@SPCURPOSX
@@ -348,6 +375,7 @@
   }
   \end{tikzpicture}
   % \end{lrbox}
+  \NTRunHook{spine/post}%
 }
 
 \newcommand{\@ntprintspine}{%
@@ -682,7 +710,7 @@
   \ifoptionequal{/novathesis/spine/layout}{trim}{%
     \stockwidth=\stockheight%
     \stockheight=\@SPWIDTH%
-  }{\ifoptionequal{/novathesis/spine/layout}{full}{%
+  }{\ifoptionequal{/novathesis/spine/layout}{notrim}{%
     \let\oldstockwidth=\stockwidth
     \stockwidth=\stockheight%
     \stockheight=21cm%
@@ -722,7 +750,7 @@
       \ClassError{novathesis}{Undefined spine “bg,color”}{}%
     }%
     % print frame IF DEFINED
-    \ifoptionequal{/novathesis/spine/layout}{full}{%
+    \ifoptionequal{/novathesis/spine/layout}{notrim}{%
       \datamatchtf{\arg}{spine}(%
                         {\@DOCTYPE,frame,color},%
                         {\@DOCCLASS,frame,color},%
@@ -856,7 +884,7 @@
     % TEXT
     \rotatebox[origin=c]{\@angle}{%
     \scalebox{\@fbratio}{%
-      \datamatchtf{\arg}{spine}({box,#1,text,gz},{box,color,text},{text,color}){\color{\arg}}{}%
+      \datamatchtf{\arg}{spine}({box,text,color},{text,color}){\color{\arg}}{}%
       \ifdatadefined{spine}(#1,\@UNIV/\@SCHL){%
         \tabular{@{}c@{}}\thespine(#1,\@UNIV/\@SCHL)\endtabular%
       }{%
