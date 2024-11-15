@@ -219,7 +219,7 @@
   \newlength\@SPHEIGHT%
   \@SPHEIGHT=\the\paperheight%
   % \@SPWIDTH=\the\paperwidth
-  \spine(angle):={90}
+  \spine(angle):={270}
   \datamatchtf{\@SPANGLE}{spine}(angle){}{\def\@SPANGLE{0}}%
   \IfStrEqCase{\@SPANGLE}{
       {0}{  \def\@SPXSCALE{1}%
@@ -318,18 +318,16 @@
                                   {\@DOCCLASS,spine,image},
                                   {spine,image}){%
     \ifnotnone{\arg}{%
-      \node[inner sep=0] at (current page.center)
-        {\includegraphics[width=\@SPWIDTH,height=\@SPHEIGHT,
-                          angle=\expanded{-\thespine(angle)}]{\arg}};
+      \node[inner sep=0,xscale=\@SPXSCALE] at (current page.center)
+        {\includegraphics[width=\@SPWIDTH,height=\@SPHEIGHT,angle=-90]{\arg}};
     }}{%
       \datamatchtf{\arg}{spine}({\@DOCTYPE,image},%
                                 {\@DOCCLASS,image},%
                                 {image},%
     ){%
       \ifnotnone{\arg}{%
-          \node[inner sep=0] at (current page.center)
-              {\includegraphics[width=\@SPWIDTH,height=\@SPHEIGHT,
-                              angle=\@SPANGLE]{\arg}};
+	      \node[inner sep=0,xscale=\@SPXSCALE] at (current page.center)
+	        {\includegraphics[width=\@SPWIDTH,height=\@SPHEIGHT,angle=-90]{\arg}};
     }}{%
       \ClassError{novathesis}{Undefined spine “image”}{}%
     }%
