@@ -218,23 +218,59 @@
   \newlength\@SPHEIGHT%
   \@SPHEIGHT=\the\paperheight%
   % \@SPWIDTH=\the\paperwidth
-  \spine(angle):={180}
+  \spine(angle):={90}
   \datamatchtf{\@SPANGLE}{spine}(angle){}{\def\@SPANGLE{0}}%
   \IfStrEqCase{\@SPANGLE}{
       {0}{  \def\@SPXSCALE{1}%
-            \def\@SPXSHIFT{0pt}%
-			\def\@ANCHOR{current page.west}
+		        \def\@NODEANCHOR{west}%
+		        \def\@GROUPANCHOR{west}%
+            \def\@ROTATE{0}%
+            \def\@TRANSFORMSHAPE{}%
+            \ifoptionequal{/novathesis/spine/layout}{trim}{%
+              \newstocksize{layoutsize={\the\paperheight,\@SPWIDTH},margin=0pt}
+            }{\ifoptionequal{/novathesis/spine/layout}{full}{%
+              \newstocksize{layoutsize={\the\paperheight,\the\paperwidth},margin=0pt}
+            }{%
+              \ClassError{novathesis}{Unknown page dimensions for “spine/layout=\option{/novathesis/spine/layout}”}
+            }}%
          }
      {90}{  \def\@SPXSCALE{1}%
-            \def\@SPXSHIFT{0pt}%
+		        \def\@NODEANCHOR{west}%
+		        \def\@GROUPANCHOR{south}%
+            \def\@TRANSFORMSHAPE{transform shape}%
+            \ifoptionequal{/novathesis/spine/layout}{trim}{%
+              \newstocksize{layoutsize={\@SPWIDTH,\the\paperheight},margin=0pt}
+            }{\ifoptionequal{/novathesis/spine/layout}{full}{%
+              \newstocksize{layoutsize={\the\paperwidth,\the\paperheight},margin=0pt}
+            }{%
+              \ClassError{novathesis}{Unknown page dimensions for “spine/layout=\option{/novathesis/spine/layout}”}
+            }}%
          }
     {180}{  \def\@SPXSCALE{-1}%
-            \def\@SPXSHIFT{\z@}%
-			\def\@ANCHOR{current page.east}
-			\def\@SPANGLE{0}%
+		        \def\@NODEANCHOR{east}%
+		        \def\@GROUPANCHOR{east}%
+            \def\@SPANGLE{0}%
+            \def\@TRANSFORMSHAPE{}%
+            \ifoptionequal{/novathesis/spine/layout}{trim}{%
+              \newstocksize{layoutsize={\the\paperheight,\@SPWIDTH},margin=0pt}
+            }{\ifoptionequal{/novathesis/spine/layout}{full}{%
+              \newstocksize{layoutsize={\the\paperheight,\the\paperwidth},margin=0pt}
+            }{%
+              \ClassError{novathesis}{Unknown page dimensions for “spine/layout=\option{/novathesis/spine/layout}”}
+            }}%
          }
-    {270}{  \def\@SPXSCALE{-1}%
-            \def\@SPXSHIFT{-\@SPHEIGHT}%
+    {270}{  \def\@SPXSCALE{1}%
+		        \def\@NODEANCHOR{west}%
+		        \def\@GROUPANCHOR{north}%
+            \def\@SPANGLE{-90}%
+            \def\@TRANSFORMSHAPE{transform shape}%
+            \ifoptionequal{/novathesis/spine/layout}{trim}{%
+              \newstocksize{layoutsize={\@SPWIDTH,\the\paperheight},margin=0pt}
+            }{\ifoptionequal{/novathesis/spine/layout}{full}{%
+              \newstocksize{layoutsize={\the\paperwidth,\the\paperheight},margin=0pt}
+            }{%
+              \ClassError{novathesis}{Unknown page dimensions for “spine/layout=\option{/novathesis/spine/layout}”}
+            }}%
          }
   }[%
     \CalssError{novathesis}{Invalid spine angle: “\@SPANGLE”. Should be wither “0”, “90”, “180”, or “270”.}{}%
@@ -244,16 +280,10 @@
   % Create a savebox
   \newsavebox\@spinebox
   % \begin{lrbox}{\@spinebox}
-  \ifoptionequal{/novathesis/spine/layout}{trim}{%
-    \newstocksize{layoutsize={\the\paperheight,\@SPWIDTH},margin=0pt}
-  }{\ifoptionequal{/novathesis/spine/layout}{full}{%
-    \newstocksize{layoutsize={\the\paperheight,\the\paperwidth},margin=0pt}
-  }{%
-    \ClassError{novathesis}{Unknown page dimensions for “spine/layout=\option{/novathesis/spine/layout}”}
-  }}%
   \begin{tikzpicture}[remember picture, overlay,
-	  				  transform shape, rotate=\@SPANGLE,
-                      xscale=\@SPXSCALE, xshift=\@SPXSHIFT,]
+              \@TRANSFORMSHAPE,
+              rotate=\@SPANGLE,
+                      xscale=\@SPXSCALE,]
   % count the number of elements in the cover
   \newcount\@SPNELEM%
   % The accumulated size of all the elemnts
@@ -297,11 +327,11 @@
                   {}{\def\@boxml{0pt}}%
     \datamatchtf{\@boxmb}{spine}({box,\myi,margin,bottom},{box,margin,bottom},{box,margin})
                   {}{\def\@boxmr{0pt}}%
-    \node[inner sep=0pt, anchor=west, %draw,
+    \node[inner sep=0pt, anchor=\@NODEANCHOR, %draw,
           % minimum width=\expanded{\thespine(box,\myi,usedlen)},
           % minimum height=\@SPWIDTHUSED,
           ]
-      at ($(\@ANCHOR)+(\@SPCURPOSX,0)$) {%
+      at ($(current page.\@GROUPANCHOR)+(\@SPCURPOSX,0)$) {%
                 \begin{tcolorbox}[
                         size=minimal, valign=center, halign=center,
                         width=\expanded{\thespine(box,\myi,len)}, height=\@SPWIDTH,
