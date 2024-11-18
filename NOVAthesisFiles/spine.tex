@@ -19,7 +19,9 @@
 
 \makeatletter
 
-\input{NOVAthesisFiles/fitbox2.sty}
+\tcbuselibrary{fitting}
+
+% \input{NOVAthesisFiles/fitbox2.sty}
 
 %-----------------------------------------------------------------
 % Set author name
@@ -74,7 +76,7 @@
 
 %-----------------------------------------------------------------
 % Defaults for spine boxes
-\spine(box,margin):=?{0.5mm}
+\spine(box,margin):=?{1.0mm}
 \spine(box,bg,color):=?{none}
 \spine(box,text,color):=?{black}
 
@@ -219,7 +221,7 @@
   \newlength\@SPHEIGHT%
   \@SPHEIGHT=\the\paperheight%
   % \@SPWIDTH=\the\paperwidth
-  \spine(angle):={270}
+  \spine(angle):={0}
   \datamatchtf{\@SPANGLE}{spine}(angle){}{\def\@SPANGLE{0}}%
   \IfStrEqCase{\@SPANGLE}{
       {0}{  \def\@SPXSCALE{1}%
@@ -363,9 +365,10 @@
                         colback=\@boxcolback, coltext=\@boxcoltext,
                         boxrule=\@boxrule, colframe=\@boxcolframe,
                         opacityback=\@BOXBGOPACITY, enhanced jigsaw,
-                        \@boxdebug,
+                        \@boxdebug, fit, fit fontsize macros,
                 ]%
-                  \thespine(\myi)%
+                  \renewcommand{\baselinestretch}{0.9}%
+                  \Huge\thespine(\myi)%
                 \end{tcolorbox}%
       };
     \@SPCURPOSX=\dimexpr\@SPCURPOSX
@@ -391,6 +394,7 @@
 
 \endinput
 \newcommand{\@ntprintspine}{%
+  \fontsize{40}{40}\selectfont%
   \newlength\@SPWIDTH%
   \setspinewidth%
   % \@SPWIDTH=\paperwidth
