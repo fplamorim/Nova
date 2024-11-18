@@ -214,14 +214,10 @@
 % \DEBUG{NOVATHESIS SPINE FINAL \string\@SPWIDTH=\the\@SPWIDTH}%
 }
 
-\newcommand{\@ntprintspine@i}{%
-  \NTRunHook{spine/pre}%
-  \newlength\@SPWIDTH%
-  \setspinewidth%
-  \newlength\@SPHEIGHT%
-  \@SPHEIGHT=\the\paperheight%
-  % \@SPWIDTH=\the\paperwidth
-  \spine(angle):={0}
+\newdata{boxdim}
+	\spine(logo)={\theboxdim(height)\ \theboxdim(width)}%\includegraphics[height={\noexpand\tcbtextheight},width={\noexpand\tcbtextwidth},keepaspectratio]{nova-fct-logo-negative-en}}
+	
+\newcommand*{\@processangle}{%
   \datamatchtf{\@SPANGLE}{spine}(angle){}{\def\@SPANGLE{0}}%
   \IfStrEqCase{\@SPANGLE}{
       {0}{  \def\@SPXSCALE{1}%
@@ -278,15 +274,27 @@
   }[%
     \CalssError{novathesis}{Invalid spine angle: “\@SPANGLE”. Should be wither “0”, “90”, “180”, or “270”.}{}%
   ]
+}
+
+\newcommand{\@ntprintspine@i}{%
+  \NTRunHook{spine/pre}%
+  \newlength\@SPWIDTH%
+  \setspinewidth%
+  \newlength\@SPHEIGHT%
+  \@SPHEIGHT=\the\paperheight%
+  % \@SPWIDTH=\the\paperwidth
+  \spine(angle):={0}
+	\@processangle%
   \newlength\@SPCURPOSX%
   \@SPCURPOSX=\dimexpr\thespine(margin,left)\relax%
   % Create a savebox
   \newsavebox\@spinebox
   % \begin{lrbox}{\@spinebox}
   \begin{tikzpicture}[remember picture, overlay,
-              \@TRANSFORMSHAPE,
-              rotate=\@SPANGLE,
-                      xscale=\@SPXSCALE,]
+						\@TRANSFORMSHAPE,
+						rotate=\@SPANGLE,
+						xscale=\@SPXSCALE,
+										 ]
   % count the number of elements in the cover
   \newcount\@SPNELEM%
   % The accumulated size of all the elemnts
@@ -367,8 +375,10 @@
                         opacityback=\@BOXBGOPACITY, enhanced jigsaw,
                         \@boxdebug, fit, fit fontsize macros,
                 ]%
+									\boxdim(height)={\tcbtextheight}
+									\boxdim(width)={\tcbtextwidth}
                   \renewcommand{\baselinestretch}{0.9}%
-                  \Huge\thespine(\myi)%
+                  \Huge\thespine(\myi) - \the\tcbtextheight\ \the\tcbtextwidth%
                 \end{tcolorbox}%
       };
     \@SPCURPOSX=\dimexpr\@SPCURPOSX
