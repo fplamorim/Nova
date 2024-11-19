@@ -86,8 +86,8 @@
 \spine(box,logo,align):=?{c}
 \spine(box,logo,raise):=?{0pt}
 \spine(box,logo,scale):=?{1}
-\spine(box,logo,margin,left):=?{0pt}
-\spine(box,logo,margin,right):=?{0pt}
+\spine(box,logo,margin,left):=?{2pt}
+\spine(box,logo,margin,right):=?{2pt}
 \spine(box,logo,margin,sep):=?{1mm}
 
 % Defaults for spine author boxes
@@ -215,10 +215,17 @@
 }
 
 \newdata{boxdim}
-	\spine(logo)={\theboxdim(height)\ \theboxdim(width)}%\includegraphics[height={\noexpand\tcbtextheight},width={\noexpand\tcbtextwidth},keepaspectratio]{nova-fct-logo-negative-en}}
+\spine(logo)={%
+	\includegraphics[height=\theboxdim(height),
+									 width=\theboxdim(width),
+									 keepaspectratio,
+									 angle={\thespine(box,logo,\@DOCTYPE,angle)},
+									 vshift=\@boxraise,
+									]{\thespine(logo,\@DOCTYPE)}%
+}
 	
 \newcommand*{\@processangle}{%
-  \datamatchtf{\@SPANGLE}{spine}(angle){}{\def\@SPANGLE{0}}%
+  \datamatchtf[0]{\@SPANGLE}{spine}(angle){}{}%
   \IfStrEqCase{\@SPANGLE}{
       {0}{  \def\@SPXSCALE{1}%
 		        \def\@NODEANCHOR{west}%
@@ -273,7 +280,19 @@
          }
   }[%
     \CalssError{novathesis}{Invalid spine angle: “\@SPANGLE”. Should be wither “0”, “90”, “180”, or “270”.}{}%
-  ]
+  ]%
+}
+
+\newcommand{\PercentToDim}[3]{%
+	#1 = dimension or percentage
+	#2 = base for percentage
+	#3 = macro for result
+	\typeout{PtD [#1] [#2] [\string#3]}
+	\IfEndWith{#1}{\%}{%
+		\StrGobbleRight{#1}{1}[\@PtD]%
+		\edef#3{\the\dimexpr#2*\@PtD/100\relax}%
+		\typeout{PtD PERC #3}
+	}{\edef#3{#1}\typeout{PtD DIM #3}}%
 }
 
 \newcommand{\@ntprintspine@i}{%
@@ -283,7 +302,7 @@
   \newlength\@SPHEIGHT%
   \@SPHEIGHT=\the\paperheight%
   % \@SPWIDTH=\the\paperwidth
-  \spine(angle):={0}
+  \spine(angle):={90}
 	\@processangle%
   \newlength\@SPCURPOSX%
   \@SPCURPOSX=\dimexpr\thespine(margin,left)\relax%
@@ -351,34 +370,57 @@
                   {\ifnotnone{\@boxcolbacki}{\def\@boxcolback{\@boxcolbacki}
                                             \def\@BOXBGOPACITY{1}}}{}%
     \def\@boxcoltext{.}%
+		% Process RAISE option
+		\datamatchtf[0pt]{\@boxraise}{spine}({box,logo,\@DOCTYPE,raise},%
+															 					 {box,logo,raise},%
+																				 {box,raise}%
+																				){}{}%
+		\PercentToDim{\@boxraise}{\the\@SPWIDTH}{\@boxraise}%
+		% Process TEXT COLOR option
     \datamatchtf{\@boxcoltexti}{spine}({box,\myi,text,color},{box,text,color})
                   {\ifnotnone{\@boxcoltexti}{\def\@boxcoltext{\@boxcoltexti}}}{}%
-    \datamatchtf{\@boxml}{spine}({box,\myi,margin,left},{box,margin,left},{box,margin})
-                  {}{\def\@boxml{0pt}}%
-    \datamatchtf{\@boxmr}{spine}({box,\myi,margin,right},{box,margin,right},{box,margin})
-                  {}{\def\@boxmr{0pt}}%
-    \datamatchtf{\@boxmt}{spine}({box,\myi,margin,top},{box,margin,top},{box,margin})
-                  {}{\def\@boxml{0pt}}%
-    \datamatchtf{\@boxmb}{spine}({box,\myi,margin,bottom},{box,margin,bottom},{box,margin})
-                  {}{\def\@boxmr{0pt}}%
+
+		% Process LEFT MARGIN option
+    \datamatchtf[0pt]{\@boxml}{spine}({box,\myi,\@DOCTYPE,margin,left},%
+																 {box,\myi,margin,left},%
+																 {box,margin,left},{box,margin}){}{}%
+		\PercentToDim{\@boxml}{\the\@SPWIDTH}{\@boxml}%
+		% Process RIGHT MARGIN option
+    \datamatchtf[0pt]{\@boxmr}{spine}({box,\myi,\@DOCTYPE,margin,right},%
+																 {box,\myi,margin,right},%
+																 {box,margin,right},{box,margin}){}{}%
+    \PercentToDim{\@boxmr}{\the\@SPWIDTH}{\@boxmr}%
+		% Process TOP MARGIN option
+    \datamatchtf[0pt]{\@boxmt}{spine}({box,\myi,\@DOCTYPE,margin,top},%
+																 {box,\myi,margin,top},%
+																 {box,margin,top},{box,margin}){}{}%
+    \PercentToDim{\@boxmt}{\the\@SPWIDTH}{\@boxmt}%
+		% Process BOTTOM MARGIN option
+    \datamatchtf[0pt]{\@boxmb}{spine}({box,\myi,\@DOCTYPE,margin,bottom},%
+																 {box,\myi,margin,bottom},%
+																 {box,margin,bottom},{box,margin}){}{}%
+    \PercentToDim{\@boxmb}{\the\@SPWIDTH}{\@boxmb}%
+		% Do not fit logo
+    \IfStrEq{\myi}{logo}{\def\@FIT{}}{\def\@FIT{fit}}%
     \node[inner sep=0pt, anchor=\@NODEANCHOR, %draw,
           % minimum width=\expanded{\thespine(box,\myi,usedlen)},
           % minimum height=\@SPWIDTHUSED,
           ]
       at ($(current page.\@GROUPANCHOR)+(\@SPCURPOSX,0)$) {%
                 \begin{tcolorbox}[
-                        size=minimal, valign=center, halign=center,
+                        size=minimal, valign=center, halign=flush center,
                         width=\expanded{\thespine(box,\myi,len)}, height=\@SPWIDTH,
                         left=\@boxml, right=\@boxmr, top=\@boxmt, bottom=\@boxmb,
                         colback=\@boxcolback, coltext=\@boxcoltext,
                         boxrule=\@boxrule, colframe=\@boxcolframe,
                         opacityback=\@BOXBGOPACITY, enhanced jigsaw,
-                        \@boxdebug, fit, fit fontsize macros,
+                        \@boxdebug, \@FIT, fit fontsize macros, 
                 ]%
-									\boxdim(height)={\tcbtextheight}
-									\boxdim(width)={\tcbtextwidth}
+									\boxdim(height)={\the\dimexpr\@SPWIDTH-\@boxmt-\@boxmb\relax}%
+									\boxdim(width)={\the\linewidth}%
                   \renewcommand{\baselinestretch}{0.9}%
-                  \Huge\thespine(\myi) - \the\tcbtextheight\ \the\tcbtextwidth%
+									\typeout{SPNODE[\myi]=\thespine(\myi)}%
+                  \Huge\thespine(\myi)%
                 \end{tcolorbox}%
       };
     \@SPCURPOSX=\dimexpr\@SPCURPOSX
@@ -412,7 +454,7 @@
   \@SPMAXLEN=\paperheight
   \newdimen{\@SPCURPOSX}%
   \spine(angle):=?{180}
-  \datamatchtf{\@SPANGLE}{spine}(angle){}{\def\@SPANGLE{0}}%
+  \datamatchtf[0]{\@SPANGLE}{spine}(angle){}{}%
   \IfStrEqCase{\@SPANGLE}{
       {0}{\def\@HT{\the\@SPWIDTH}\def\@WD{\the\paperheight}%
             \def\@BOXPOSITION{current page.west}%
@@ -482,8 +524,8 @@
     % Accumulated len of the spine elements    
     \@tempdimb=\dimexpr\@tempdimb+\@tempdima\relax%
     % Calculate the used text len of the box (= total box len minus box margins)
-    \datamatchtf{\@boxml}{spine}({box,\myi,margin,left},{box,margin,left},{box,margin}){}{\def\@boxml{0pt}}%
-    \datamatchtf{\@boxmr}{spine}({box,\myi,margin,right},{box,margin,right},{box,margin}){}{\def\@boxmr{0pt}}%
+    \datamatchtf[0pt]{\@boxml}{spine}({box,\myi,margin,left},{box,margin,left},{box,margin}){}{}%
+    \datamatchtf[0pt]{\@boxmr}{spine}({box,\myi,margin,right},{box,margin,right},{box,margin}){}{}%
     \@tempdima=\dimexpr\@tempdima-\@boxml-\@boxmr\relax%
     \spine(box,\myi,usedlen):={\the\@tempdima}%
     % \DEBUG{TEXT[\myi,len]=\thespine(box,\myi,len)}
@@ -518,14 +560,14 @@
     \setlength{\fboxsep}{0pt}\setlength{\fboxrule}{0.5pt}%
     % iterate the cover elements and draw them
     \@for\myi:=\expanded{\thespine(order)}\do{%
-      \datamatchtf{\@boxml}{spine}({box,\myi,margin,left},{box,margin,left},{box,margin})
-                    {}{\def\@boxml{0pt}}%
-      \datamatchtf{\@boxmr}{spine}({box,\myi,margin,right},{box,margin,right},{box,margin})
-                    {}{\def\@boxmr{0pt}}%
-      \datamatchtf{\@boxmt}{spine}({box,\myi,margin,top},{box,margin,top},{box,margin})
-                    {}{\def\@boxml{0pt}}%
-      \datamatchtf{\@boxmb}{spine}({box,\myi,margin,bottom},{box,margin,bottom},{box,margin})
-                    {}{\def\@boxmr{0pt}}%
+      \datamatchtf[0pt]{\@boxml}{spine}
+											({box,\myi,margin,left},{box,margin,left},{box,margin}){}{}%
+      \datamatchtf[0pt]{\@boxmr}{spine}
+											({box,\myi,margin,right},{box,margin,right},{box,margin}){}{}%
+      \datamatchtf[0pt]{\@boxmt}{spine}
+											({box,\myi,margin,top},{box,margin,top},{box,margin}){}{}%
+      \datamatchtf[0pt]{\@boxmb}{spine}
+											({box,\myi,margin,bottom},{box,margin,bottom},{box,margin}){}{}%
       \def\@boxcolback{tcbcolback}%
       \datamatchtf{\@boxcolbacki}{spine}({box,\myi,color,bg},{box,color,bg})
                     {\ifnotnone{\@boxcolbacki}{\def\@boxcolback{\@boxcolbacki}}}{}%
@@ -665,8 +707,8 @@
 
 \@for\myi:=\expanded{\thespine(order)}\do{%
   % \DEBUG{TEXT[\myi]}
-  \datamatchtf{\@boxml}{spine}({box,\myi,margin,left},{box,margin,left}){}{\def\@boxml{0pt}}%
-  \datamatchtf{\@boxmr}{spine}({box,\myi,margin,right},{box,margin,right}){}{\def\@boxmr{0pt}}%
+  \datamatchtf[0pt]{\@boxml}{spine}({box,\myi,margin,left},{box,margin,left}){}{}%
+  \datamatchtf[0pt]{\@boxmr}{spine}({box,\myi,margin,right},{box,margin,right}){}{}%
   % \DEBUG{TEXT[\myi] [\@boxml] [\@boxmr]}
   \@tempdima=\dimexpr\thespine(box,\myi,len)\relax%
   \spine(box,\myi,len):={\the\@tempdima}%

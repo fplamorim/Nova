@@ -138,28 +138,36 @@
 
 % --------------------------------------------------------
 % Search if a data/memory is defined and returns value
-\def\datamatch#1#2(#3){%
-  % #1 = macro to set
-  % #2 = data@memory
-  % #3 = list of values
+\NewDocumentCommand {\datamatch} {O{} m m r()} {%
+% \def\datamatch#1#2(#3){%
+	% #1 = default value if false
+  % #2 = macro to set
+  % #3 = data@memory
+  % #4 = list of values
   % Search and match first value from the list, error if no match is found
-  \datamatchtf{#1}{#2}(#3){}{\ClassError{novathesis}{Could not find “#2” defined with any of “(#3)”!}{}}%
+  \datamatchtf[#1]{#2}{#3}(#4){}{%
+		\@ifmtarg{#1}{%
+			\ClassError{novathesis}{Could not find “#2” defined with any of “(#3)”!}{}%
+		}{}%
+	}%
 }
 
-\def\datamatchtf#1#2(#3)#4#5{%
-  % #1 = macro to set
-  % #2 = data@memory
-  % #3 = list of values
-  % #4 = true branch
-  % #5 = false branch
+\NewDocumentCommand {\datamatchtf} {O{} m m r() m m} {%
+% \def\datamatchtf#1#2(#3)#4#5{%
+	% #1 = default value if false
+  % #2 = macro to set
+  % #3 = data@memory
+  % #4 = list of values
+  % #5 = true branch
+  % #6 = false branch
   % Search and match first value from the list, true (found) and not true (not found) branches
   % \typeout{#2(#3)}%
   % \ifdatadefinedor{\@match}{#2}(#3)%
   %   {\protect\gdef#1{\csuse{the#2}(\@match)}#4}%
   %   {\protect\gdef#1{}#5}%
-  \ifdatadefinedor{\@match}{#2}(#3)%
-    {\protect\xdef#1{\expanded{\csuse{the#2}(\@match)}}#4}%
-    {\protect\xdef#1{}#5}%
+  \ifdatadefinedor{\@match}{#3}(#4)%
+    {\protect\xdef#2{\expanded{\csuse{the#3}(\@match)}}#5}%
+    {\protect\xdef#2{#1}#6}%
 }
 
 
